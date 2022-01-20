@@ -178,3 +178,8 @@ CREATE TRIGGER path_tri
     FOR EACH ROW
 EXECUTE PROCEDURE path();
 
+
+create index if not exists thread_slug_hash on threads using hash (slug);
+create index if not exists thread_forum_created on threads (created);
+create index if not exists thread_forum_created on threads (forum, created);
+create index if not exists thread_user on threads using hash (author);
