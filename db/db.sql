@@ -60,7 +60,13 @@ create unlogged table if not exists users_to_forums
 (
     nickname citext not null references users (nickname),
     forum    citext not null references forum (slug),
+
+    fullname text,
+    about    text,
+    email    citext,
+
     unique (nickname, forum)
+
 );
 
 CREATE OR REPLACE FUNCTION insert_votes_threads()
@@ -141,9 +147,19 @@ EXECUTE PROCEDURE count_threads();
 CREATE OR REPLACE FUNCTION update_users_forum()
     RETURNS TRIGGER AS
 $update_users_forum$
+DECLARE
+    tmp_nickname CITEXT;
+    tmp_fullname TEXT;
+    tmp_about    TEXT;
+    tmp_email    CITEXT;
 BEGIN
-    INSERT INTO users_to_forums (nickname, forum)
-    VALUES (NEW.author, NEW.forum)
+    SELECT u.nickname, u.fullname, u.about, u.email
+    FROM users u
+    WHERE u.nickname = NEW.author
+    INTO tmp_nickname, tmp_fullname, tmp_about, tmp_email;
+
+    INSERT INTO users_to_forums (nickname, fullname, about, email, forum)
+    VALUES (tmp_nickname, tmp_fullname, tmp_about, tmp_email, NEW.forum)
     ON CONFLICT DO NOTHING;
     RETURN NEW;
 END;

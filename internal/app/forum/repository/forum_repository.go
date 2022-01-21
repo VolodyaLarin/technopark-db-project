@@ -44,15 +44,14 @@ func (forumRep *ForumRepository) GetForumBySlug(slug string) (*models.Forum, err
 }
 
 func (forumRep *ForumRepository) GetUsersByForum(forumSlug, since string, limit int, desc bool) ([]*usersModels.User, error) {
-	query := fmt.Sprintf(`select u.nickname, u.fullname, u.about, u.email from users_to_forums
-			left join users u on users_to_forums.nickname = u.nickname
-			where users_to_forums.forum = '%s'`, forumSlug)
+	query := fmt.Sprintf(`select uf.nickname, uf.fullname, uf.about, uf.email from users_to_forums as uf
+			where uf.forum = '%s'`, forumSlug)
 	if desc && since != "" {
-		query += fmt.Sprintf(` and u.nickname < '%s'`, since)
+		query += fmt.Sprintf(` and uf.nickname < '%s'`, since)
 	} else if since != "" {
-		query += fmt.Sprintf(` and u.nickname > '%s'`, since)
+		query += fmt.Sprintf(` and uf.nickname > '%s'`, since)
 	}
-	query +=  ` order by u.nickname `
+	query += ` order by uf.nickname `
 	if desc {
 		query += "desc"
 	}
